@@ -53,12 +53,14 @@ fun CalculatorScreen(){
                 else if (num1.isNotEmpty()) num1 = num1.dropLast(1)
             }
             "%" ->{
-                if (num1.isNotEmpty() && opc.isNotEmpty()){
+                if (num1.isNotEmpty() && opc.isEmpty()){
                     num1 = LogicaCalc.calcularPorcentaje(num1)
+                } else if (num2.isNotEmpty()) {
+                    num2 = LogicaCalc.calcularPorcentaje(num2)
                 }
             }
             "=" -> {
-                if (num1.isNotEmpty() && num2.isNotEmpty() && opc.isNullOrEmpty()){
+                if (num1.isNotEmpty() && num2.isNotEmpty() && opc.isNotEmpty()){
                     num1 = LogicaCalc.calcular(num1,num2,opc)
                     num2 = ""
                     opc = ""
@@ -68,10 +70,14 @@ fun CalculatorScreen(){
                 if (num1.isNotEmpty() )opc = simbolo
             }
             "." -> {
-                if (opc.isNotEmpty() && !num1.contains(".")){
-                    num1 += if (num1.isNotEmpty()) "0." else "."
-                }else if (opc.isNotEmpty() && !num2.contains(".")){
-                    num2 += if (num2.isEmpty()) "0." else "."
+                if (opc.isEmpty()){
+                    if (!num1.contains(".")){
+                        num1 += if (num1.isEmpty()) "0." else "."
+                    }
+                }else{
+                    if (!num2.contains(".")){
+                        num2 += if (num2.isEmpty()) "0." else "."
+                    }
                 }
             }
             else -> {
@@ -118,9 +124,10 @@ fun CalculatorScreen(){
             }
             Column(verticalArrangement =  Arrangement.spacedBy(12.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    CalcBtn("C", Modifier.weight(2f)) { onButtonClick("C") }
-                    CalcBtn("+", Modifier.weight(1f)) { onButtonClick("+") }
+                    CalcBtn("C", Modifier.weight(1f)) { onButtonClick("C") }
+                    CalcBtn("<-", Modifier.weight(1f)) { onButtonClick("<-") }
                     CalcBtn("%", Modifier.weight(1f)) { onButtonClick("%") }
+                    CalcBtn("/", Modifier.weight(1f)) { onButtonClick("/") }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     CalcBtn("7", Modifier.weight(1f)) { onButtonClick("7") }
