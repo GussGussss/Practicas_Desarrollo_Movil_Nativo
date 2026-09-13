@@ -5,31 +5,47 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EBD3D3"
     tools:context=".MainActivity">
 
     <EditText
         android:id="@+id/entradaTexto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="212dp"
+        android:layout_height="88dp"
+        android:layout_marginTop="131dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="24dp"
         android:ems="10"
-        android:text="Escribe algo"
-        tools:layout_editor_absoluteX="82dp"
-        tools:layout_editor_absoluteY="131dp" />
+        android:hint="Escribe algo"
+        android:textColor="#000000"
+        android:textColorHint="#000000"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/botonSaludar"
+        app:layout_constraintEnd_toEndOf="@+id/botonSaludar"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="224dp"
-        android:layout_height="21dp"
-        tools:layout_editor_absoluteX="82dp"
-        tools:layout_editor_absoluteY="310dp" />
+        android:layout_width="221dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginBottom="400dp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/botonSaludar" />
 
     <Button
         android:id="@+id/botonSaludar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="62dp"
         android:backgroundTint="#87BF0F0F"
         android:text="Enviar"
-        tools:layout_editor_absoluteX="215dp"
-        tools:layout_editor_absoluteY="200dp" />
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/entradaTexto" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
