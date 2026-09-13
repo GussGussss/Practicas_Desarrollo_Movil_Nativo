@@ -7,13 +7,29 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <EditText
+        android:id="@+id/entradaTexto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:ems="10"
+        android:text="Escribe algo"
+        tools:layout_editor_absoluteX="82dp"
+        tools:layout_editor_absoluteY="131dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="224dp"
+        android:layout_height="21dp"
+        tools:layout_editor_absoluteX="82dp"
+        tools:layout_editor_absoluteY="310dp" />
+
+    <Button
+        android:id="@+id/botonSaludar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#87BF0F0F"
+        android:text="Enviar"
+        tools:layout_editor_absoluteX="215dp"
+        tools:layout_editor_absoluteY="200dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
