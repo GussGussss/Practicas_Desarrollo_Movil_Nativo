@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.practica_4_controles_avanzados.components.CustomCheckBox
+import com.example.practica_4_controles_avanzados.components.CustomDatePicker
 import com.example.practica_4_controles_avanzados.components.CustomRadioButton
 import com.example.practica_4_controles_avanzados.components.CustomSpinner
 import com.example.practica_4_controles_avanzados.components.CustomSwitch
@@ -57,12 +58,12 @@ fun FormScreen(){
         CustomCheckBox()
 
         HorizontalDivider()
-        Text("4. DatePicker", style = MaterialTheme.typography.headlineMedium)
+        Text("4. Spinner (DropdownMenu", style = MaterialTheme.typography.headlineMedium)
         CustomSpinner()
 
         HorizontalDivider()
-        Text("5. Switch", style = MaterialTheme.typography.headlineMedium)
-        CustomSwitch()
+        Text("5. DatePicker", style = MaterialTheme.typography.headlineMedium)
+        CustomDatePicker()
 
         Spacer(modifier = Modifier.height(16.dp))
 
