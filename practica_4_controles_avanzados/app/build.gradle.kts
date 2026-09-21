@@ -51,4 +51,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation("androidx.compose.material:material-incons-core_1.6.8")
+    implementation("androidx.compose.material:material-incons-extended_1.6.8")
 }
