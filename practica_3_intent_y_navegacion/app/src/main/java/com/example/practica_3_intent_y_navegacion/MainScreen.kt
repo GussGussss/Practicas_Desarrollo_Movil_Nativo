@@ -78,7 +78,7 @@ fun MainScreen(){
         OutlinedButton(
             onClick = {
                 val sendIntent = Intent(Intent.ACTION_SEND).apply{
-                    putExtra(Intent.EXTRA_INTENT, "Hola, mi nombr es $nombre y mi correo es $correo")
+                    putExtra(Intent.EXTRA_TEXT, "Hola, mi nombre es $nombre y mi correo es $correo")
                     type = "text/plain"
                 }
                 val chooser = Intent.createChooser(sendIntent, "Compartir datos usando:")
