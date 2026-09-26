@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -125,6 +127,30 @@ fun FormScreen(){
                 }
 
                 //boton: recargar/recuperar
+                OutlinedButton(
+                    onClick = {
+                        username = preferencesManager.getUsername()
+                        notificationsEnabled = preferencesManager.getNotifications()
+                        darkThemeEnabled = preferencesManager.getDarkTheme()
+                        Toast.makeText(context, "Preferencias Cargadas", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Recargar Datos Guardados")
+                }
+                //Boton: Limpiar
+                TextButton(
+                    onClick = {
+                        preferencesManager.clearPreferences()
+                        username = ""
+                        notificationsEnabled = false
+                        darkThemeEnabled = false
+                        Toast.makeText(context, "Preferencias eliminadas", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Restablecer Configuracion", color = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }
