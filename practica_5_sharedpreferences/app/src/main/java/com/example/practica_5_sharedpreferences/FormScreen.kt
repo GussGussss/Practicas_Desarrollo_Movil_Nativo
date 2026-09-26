@@ -1,15 +1,19 @@
 package com.example.practica_5_sharedpreferences
 
 import android.R.attr.padding
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -80,6 +84,47 @@ fun FormScreen(){
                     modifier = Modifier.fillMaxWidth()
                 )
                 //2. Switch para notificaciones
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Recibir Notificaciones:", fontSize = 16.sp)
+                    Switch(
+                        checked = notificationsEnabled,
+                        onCheckedChange = { notificationsEnabled = it}
+                    )
+                }
+                //3. Switch con tema oscuro (AL moverlo cambia inmediatamente la pantalla)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Activar Tema Oscuro:", fontSize = 16.sp)
+                    Switch(
+                        checked = darkThemeEnabled,
+                        onCheckedChange = {darkThemeEnabled = it}
+                    )
+                }
+                HorizontalDivider()
+
+                //boton: Guardar sharedpreferences
+                Button(
+                    onClick = {
+                        preferencesManager.saveSettings(
+                            username = username,
+                            notifications = notificationsEnabled,
+                            darkTheme = darkThemeEnabled
+                        )
+                        Toast.makeText(context, "Configuracion guardada", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text ("Guardar Preferencias")
+                }
+
+                //boton: recargar/recuperar
             }
         }
     }
