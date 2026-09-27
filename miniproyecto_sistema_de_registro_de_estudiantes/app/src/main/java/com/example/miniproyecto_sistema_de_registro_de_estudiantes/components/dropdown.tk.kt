@@ -1,2 +1,0 @@
-package com.example.miniproyecto_sistema_de_registro_de_estudiantes.components
-
