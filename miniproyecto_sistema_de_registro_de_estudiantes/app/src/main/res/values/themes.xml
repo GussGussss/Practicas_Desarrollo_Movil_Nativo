@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Miniproyecto_sistema_de_registro_de_estudiantes" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

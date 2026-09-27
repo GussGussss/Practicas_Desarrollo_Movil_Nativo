@@ -22,6 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "miniproyecto-sistema-de-registro-de-estudiantes"
+rootProject.name = "miniproyecto_sistema_de_registro_de_estudiantes"
 include(":app")
- 

@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun MiniproyectosistemaderegistrodeestudiantesTheme(
+fun Miniproyecto_sistema_de_registro_de_estudiantesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
