@@ -29,8 +29,8 @@ fun DetailsScreen(
     nombre: String,
     matricula: String,
     carrera: String,
-    Turno: String,
-    Status: String,
+    turno: String,
+    status: String,
     onBackClick: () -> Unit
 ){
     Surface(
@@ -70,11 +70,11 @@ fun DetailsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(text = "Turno: ", style = MaterialTheme.typography.labelLarge)
-                    Text(text = Turno, fontSize = 18.sp)
+                    Text(text = turno, fontSize = 18.sp)
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(text = "Status: ", style = MaterialTheme.typography.labelLarge)
-                    Text(text = Status, fontSize = 18.sp)
+                    Text(text = status, fontSize = 18.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }

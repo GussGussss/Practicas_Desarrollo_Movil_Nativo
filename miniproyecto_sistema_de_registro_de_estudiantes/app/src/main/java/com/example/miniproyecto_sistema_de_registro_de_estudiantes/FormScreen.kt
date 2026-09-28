@@ -107,6 +107,12 @@ fun FormScreen() {
                     onClick = {
                         preferencesManager.saveMatricula(matricula)
                         Toast.makeText(context, "Registro Completo", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(context, ActivityScreen::class.java).apply{
+                            putExtra("EXTRA_NOMBRE", nombre)
+                            putExtra("EXTRA_MATRICULA",matricula)
+                        }
+                        //mostrar la pantalla de los detalles
+                        context.startActivity(intent)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
