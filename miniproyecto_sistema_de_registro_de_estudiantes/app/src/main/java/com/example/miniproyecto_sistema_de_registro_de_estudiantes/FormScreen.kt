@@ -1,5 +1,6 @@
 package com.example.miniproyecto_sistema_de_registro_de_estudiantes
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,16 +34,20 @@ import com.example.miniproyecto_sistema_de_registro_de_estudiantes.components.Co
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.components.ComponentRadioButton
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.components.ComponentSwitch
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.data.PreferencesManager
+import kotlin.jvm.java
 
 //Funcion principal de la pantalla
 @Composable
 fun FormScreen() {
     var nombre by remember() { mutableStateOf("") }
-    var matricula by remember() { mutableStateOf("") }
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
+    var matricula by remember { mutableStateOf(preferencesManager.getMatricula())}
 
-    Launched
+    LaunchedEffect(Unit) {
+        matricula = preferencesManager.getMatricula()
+    }
+
     Scaffold(
         containerColor = Color(0xFFE3F2Fd)
     ) { innerPadding ->
@@ -99,6 +105,7 @@ fun FormScreen() {
                 Spacer(modifier = Modifier.height(30.dp))
                 Button(
                     onClick = {
+                        preferencesManager.saveMatricula(matricula)
                         Toast.makeText(context, "Registro Completo", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxWidth(),
