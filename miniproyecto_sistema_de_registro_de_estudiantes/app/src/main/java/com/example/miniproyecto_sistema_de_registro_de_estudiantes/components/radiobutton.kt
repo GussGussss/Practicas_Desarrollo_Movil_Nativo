@@ -39,7 +39,7 @@ fun ComponentRadioButton(){
         )
         Text(
             text = "Vespertino",
-            modifier = Modifier.clickable{selectedOption = "Matutino"}
+            modifier = Modifier.clickable{selectedOption = "Vespertino"}
         )
     }
 }
