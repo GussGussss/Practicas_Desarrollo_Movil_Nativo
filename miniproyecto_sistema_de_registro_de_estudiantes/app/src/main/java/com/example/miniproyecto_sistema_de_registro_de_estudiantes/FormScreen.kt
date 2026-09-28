@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.components.ComponentDropDown
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.components.ComponentRadioButton
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.components.ComponentSwitch
+import com.example.miniproyecto_sistema_de_registro_de_estudiantes.data.PreferencesManager
 
 //Funcion principal de la pantalla
 @Composable
@@ -38,7 +39,9 @@ fun FormScreen() {
     var nombre by remember() { mutableStateOf("") }
     var matricula by remember() { mutableStateOf("") }
     val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
 
+    Launched
     Scaffold(
         containerColor = Color(0xFFE3F2Fd)
     ) { innerPadding ->
