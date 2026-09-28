@@ -18,9 +18,10 @@ import androidx.compose.ui.unit.sp
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.FormScreen
 
 @Composable
-fun ComponentSwitch(){
-    var isChecked by remember { mutableStateOf(false) }
-
+fun ComponentSwitch(
+    isActive: Boolean,
+    onActiveChange: (Boolean) -> Unit
+){
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -28,15 +29,8 @@ fun ComponentSwitch(){
     ) {
         Text("Inactivo / Activo:", fontSize = 16.sp)
         Switch(
-            checked = isChecked,
-            onCheckedChange = { isChecked = it }
+            checked = isActive,
+            onCheckedChange = { onActiveChange(it) }
         )
     }
-}
-
-//ver el preview de lo que uno va haciendo
-@Preview(showBackground = true)
-@Composable
-fun SwitchPreview(){
-    ComponentSwitch()
 }

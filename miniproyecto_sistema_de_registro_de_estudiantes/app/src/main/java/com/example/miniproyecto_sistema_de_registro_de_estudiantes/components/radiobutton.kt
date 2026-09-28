@@ -19,34 +19,29 @@ import androidx.compose.ui.unit.dp
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.FormScreen
 
 @Composable
-fun ComponentRadioButton(){
-    var selectedOption by remember { (mutableStateOf("Opcion 1")) }
+fun ComponentRadioButton(
+    turnoSeleccionado: String,
+    onTurnoChange: (String) -> Unit
+){
 
     Row(verticalAlignment = Alignment.CenterVertically){
         RadioButton(
-            selected = (selectedOption == "Matutino"),
-            onClick = { selectedOption = "Matutino"}
+            selected = (turnoSeleccionado == "Matutino"),
+            onClick = { onTurnoChange ("Matutino")}
         )
         Text(
             text = "Matutino",
-            modifier = Modifier.clickable{selectedOption = "Matutino"}
+            modifier = Modifier.clickable{onTurnoChange("Matutino") }
         )
         Spacer(modifier = Modifier.width(16.dp))
 
         RadioButton(
-            selected = (selectedOption == "Vespertino"),
-            onClick = { selectedOption = "Vespertino"}
+            selected = (turnoSeleccionado == "Vespertino"),
+            onClick = { onTurnoChange("Vespertino") }
         )
         Text(
             text = "Vespertino",
-            modifier = Modifier.clickable{selectedOption = "Vespertino"}
+            modifier = Modifier.clickable{onTurnoChange("Vespertino")}
         )
     }
-}
-
-//ver el preview de lo que uno va haciendo
-@Preview(showBackground = true)
-@Composable
-fun RadioButtonPreview(){
-    ComponentRadioButton()
 }

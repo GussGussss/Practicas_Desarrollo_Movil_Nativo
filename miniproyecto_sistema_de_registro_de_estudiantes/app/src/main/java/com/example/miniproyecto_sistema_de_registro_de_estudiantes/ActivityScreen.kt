@@ -12,7 +12,7 @@ class ActivityScreen : ComponentActivity(){
         val matricula = intent.getStringExtra("EXTRA_MATRICULA") ?: "Sin matricula"
         val carrera = intent.getStringExtra("EXTRA_CARRERA") ?: "Sin carrera"
         val turno = intent.getStringExtra("EXTRA_TURNO") ?: "Sin turno"
-        val status = intent.getStringExtra("EXTRA_STATUS") ?: "Sin status"
+        val status = intent.getStringExtra("EXTRA_ESTATUS") ?: "Sin status"
 
         setContent {
             DetailsScreen(

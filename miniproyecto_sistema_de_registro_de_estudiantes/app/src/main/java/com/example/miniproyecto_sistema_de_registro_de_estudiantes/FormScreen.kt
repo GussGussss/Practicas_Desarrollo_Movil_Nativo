@@ -43,6 +43,9 @@ fun FormScreen() {
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
     var matricula by remember { mutableStateOf(preferencesManager.getMatricula())}
+    var carrera by remember { mutableStateOf("Seleccionar opción") }
+    var turno by remember { mutableStateOf("Matutino") }
+    var estatusActivo by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         matricula = preferencesManager.getMatricula()
@@ -92,15 +95,24 @@ fun FormScreen() {
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ComponentDropDown()
+                ComponentDropDown(
+                    carreraSeleccionada = carrera,
+                    onCarreraChange = {nuevaCarrera -> carrera = nuevaCarrera}
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Seleccione turno:", style = MaterialTheme.typography.titleMedium)
-                ComponentRadioButton()
+                ComponentRadioButton(
+                    turnoSeleccionado = turno,
+                    onTurnoChange = { nuevoTurno -> turno = nuevoTurno }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Status del estudiante:", style = MaterialTheme.typography.titleMedium)
-                ComponentSwitch()
+                ComponentSwitch(
+                    isActive = estatusActivo,
+                    onActiveChange = {nuevoEstatus -> estatusActivo = nuevoEstatus}
+                )
 
                 Spacer(modifier = Modifier.height(30.dp))
                 Button(
@@ -110,6 +122,9 @@ fun FormScreen() {
                         val intent = Intent(context, ActivityScreen::class.java).apply{
                             putExtra("EXTRA_NOMBRE", nombre)
                             putExtra("EXTRA_MATRICULA",matricula)
+                            putExtra("EXTRA_CARRERA", carrera)
+                            putExtra("EXTRA_TURNO", turno)
+                            putExtra("EXTRA_ESTATUS", if (estatusActivo) "Activo" else "Inactivo")
                         }
                         //mostrar la pantalla de los detalles
                         context.startActivity(intent)
@@ -124,10 +139,4 @@ fun FormScreen() {
             }
         }
     }
-}
-//ver el preview de lo que uno va haciendo
-@Preview(showBackground = true)
-@Composable
-fun FormScreenPreview(){
-    FormScreen()
 }

@@ -22,13 +22,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.miniproyecto_sistema_de_registro_de_estudiantes.FormScreen
 
 @Composable
-fun ComponentDropDown(){
+fun ComponentDropDown(
+    carreraSeleccionada: String,
+    onCarreraChange: (String) -> Unit
+){
     var expanded by remember{ mutableStateOf(false) }
     var selectText by remember { mutableStateOf("Seleccionar opcion") }
 
     Box(modifier = Modifier.fillMaxWidth()){
         OutlinedTextField(
-            value = selectText,
+            value = carreraSeleccionada,
             onValueChange = {},
             readOnly = true,
             modifier = Modifier.fillMaxWidth(),
@@ -45,24 +48,17 @@ fun ComponentDropDown(){
             DropdownMenuItem(
                 text = { Text("Ingenieria en Software") },
                 onClick = {
-                    selectText = "Ingenieria en Software"
+                    onCarreraChange("Ingenieria en Software")
                     expanded = false
                 }
             )
                 DropdownMenuItem(
                     text = { Text("Ciencias Biomedicas")},
                     onClick = {
-                        selectText = "Ciencias Biomedicas"
+                        onCarreraChange("Ciencias Biomedicas")
                         expanded = false
                     }
                 )
         }
     }
-}
-
-//ver el preview de lo que uno va haciendo
-@Preview(showBackground = true)
-@Composable
-fun DropdownPreview(){
-    ComponentDropDown()
 }
