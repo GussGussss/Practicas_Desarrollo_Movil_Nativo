@@ -1,4 +1,4 @@
-package com.example.practica_6_lazycolumn_y_listas_dinamicas
+package com.example.practica_7_menu_toolsbar_y_material_design
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,14 +11,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.practica_6_lazycolumn_y_listas_dinamicas.ui.theme.Practica_6_lazycolumn_y_listas_dinamicasTheme
+import com.example.practica_7_menu_toolsbar_y_material_design.ui.theme.Practica_7_menu_toolsbar_y_material_designTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ListaScreen()
+            Practica_7_menu_toolsbar_y_material_designTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
         }
     }
 }
@@ -34,7 +41,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    Practica_6_lazycolumn_y_listas_dinamicasTheme {
+    Practica_7_menu_toolsbar_y_material_designTheme {
         Greeting("Android")
     }
 }
