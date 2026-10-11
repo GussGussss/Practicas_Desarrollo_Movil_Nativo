@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.miniproyecto_administrador_de_tareas_locales.presentation.MainScreen
 import com.example.miniproyecto_administrador_de_tareas_locales.ui.theme.Miniproyecto_administrador_de_tareas_localesTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
+            MainScreen()
         }
     }
 }
