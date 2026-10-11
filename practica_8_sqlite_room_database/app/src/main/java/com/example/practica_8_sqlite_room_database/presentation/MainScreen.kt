@@ -5,6 +5,7 @@ import android.service.autofill.OnClickAction
 import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -21,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,7 +42,7 @@ import kotlinx.coroutines.withContext
 import kotlin.collections.emptyList
 
 @Composable
-fun MainScreen(){
+fun MainScreen() {
     val context = LocalContext.current
     //instancias de la BD y el DAO
     val db = remember { AppDatabase.getDatabase(context) }
@@ -50,6 +53,7 @@ fun MainScreen(){
     //collectAsState() transforma el Flow en une estado que redibuja la UI si hay cambios
     val usuarios by dao.obtenerTodos().collectAsState(initial = emptyList())
     var nuevoNombre by remember { mutableStateOf("") }
+    var usuarioEnEdicion by remember { mutableStateOf<Usuario?>(null) }
 
     Column(
         modifier = Modifier
@@ -67,12 +71,16 @@ fun MainScreen(){
         Spacer(modifier = Modifier.height(8.dp))
         Button(
             onClick = {
-                if (nuevoNombre.isNotBlank()){
-                    coroutineScope.launch(Dispatchers.IO){
-                        //1. Guardar en la BD
-                        dao.insertar(Usuario(nombre = nuevoNombre))
+                if (nuevoNombre.isNotBlank()) {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val usuarioActual = usuarioEnEdicion
+                        if (usuarioActual == null) {
+                            dao.insertar(Usuario(nombre = nuevoNombre))
+                        } else {
+                            dao.actualizar(usuarioActual.copy(nombre = nuevoNombre))
+                        }
                         //2. Regresar al hilo principal para actualizar la UI
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             nuevoNombre = ""
                         }
                     }
@@ -80,7 +88,20 @@ fun MainScreen(){
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Guardar Usuario")
+            Text(if (usuarioEnEdicion == null) "Guardar Usuario" else "Actualizar Usuario")
+        }
+        // Botón para cancelar la edición si el usuario se arrepiente
+        if (usuarioEnEdicion != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            TextButton(
+                onClick = {
+                    nuevoNombre = ""
+                    usuarioEnEdicion = null
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cancelar edición")
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text("Lista de Usuarios Registrados:", style = MaterialTheme.typography.titleMedium)
@@ -92,16 +113,31 @@ fun MainScreen(){
                         text = "ID: ${usuario.id} | Nombre: ${usuario.nombre}",
                         modifier = Modifier.padding(16.dp)
                     )
-                    IconButton(onClick = {
-                    coroutineScope.launch (Dispatchers.IO){
-                        dao.eliminar(usuario)
-                    }
-                }){
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar Usuario",
-                            tint = MaterialTheme.colorScheme.error
-                        )
+                    Row {
+                        // Botón de Editar
+                        IconButton(onClick = {
+                            usuarioEnEdicion = usuario
+                            nuevoNombre =
+                                usuario.nombre // Pone el nombre actual en el campo de texto
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Editar Usuario",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
+                        IconButton(onClick = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                dao.eliminar(usuario)
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Eliminar Usuario",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }
