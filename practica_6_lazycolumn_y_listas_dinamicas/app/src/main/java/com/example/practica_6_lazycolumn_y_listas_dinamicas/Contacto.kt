@@ -11,7 +11,7 @@ fun obtenerContactosDummy(): List<Contacto>{
     return listOf(
         Contacto(1, "Ana Garcia", "555-1001"),
         Contacto(2, "Luis Perez", "555-1002"),
-        Contacto(3, "Maria Lopez", "555-1003"),
+        Contacto(3, "Edna <3", "555-1003"),
         Contacto(4, "Carlos Ramirez", "555-1004"),
         Contacto(5, "Sofia Torres", "555-1005"),
         Contacto(6, "Jorge Medina", "555-1006"),

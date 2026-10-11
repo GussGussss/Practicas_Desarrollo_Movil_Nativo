@@ -47,7 +47,7 @@ fun ContactoItem(contacto: Contacto){
     //Card muestra los datos de la lista
     Card(
         onClick = {
-            Toast.makeText(context, "Seleccionaste a $contacto", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Seleccionaste a ${contacto.nombre}", Toast.LENGTH_SHORT).show()
         },
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
