@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.practica10.CameraScreen
 import com.example.practica_10_uso_de_camara.ui.theme.Practica_10_uso_de_camaraTheme
 
 class MainActivity : ComponentActivity() {

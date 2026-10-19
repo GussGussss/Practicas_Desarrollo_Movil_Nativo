@@ -1,5 +1,7 @@
-package com.example.practica10
+package com.example.practica_10_uso_de_camara
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,12 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraScreen() {
-    // Lista observable de imágenes (Bitmaps)
+    val context = LocalContext.current
     var listaImagenes by remember { mutableStateOf(listOf<Bitmap>()) }
 
     // Lanzador para abrir la cámara y recibir el Bitmap capturado
@@ -30,6 +34,16 @@ fun CameraScreen() {
     ) { bitmap: Bitmap? ->
         if (bitmap != null) {
             listaImagenes = listaImagenes + bitmap
+        }
+    }
+
+    // Lanzador para solicitar el permiso de la cámara de forma explícita
+    val permisoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Si el usuario acepta, lanzamos la cámara
+            camaraLauncher.launch(null)
         }
     }
 
@@ -45,8 +59,19 @@ fun CameraScreen() {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // Al presionar, lanzamos la petición de cámara
-                    camaraLauncher.launch(null)
+                    // Verificamos si el permiso de cámara ya fue concedido
+                    val permisoCheck = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    )
+
+                    if (permisoCheck == PackageManager.PERMISSION_GRANTED) {
+                        // Si ya lo tiene, abrimos la cámara directamente
+                        camaraLauncher.launch(null)
+                    } else {
+                        // Si no lo tiene, lo solicitamos en pantalla
+                        permisoLauncher.launch(Manifest.permission.CAMERA)
+                    }
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Tomar Foto")
@@ -86,7 +111,6 @@ fun ImagenCapturadaItem(bitmap: Bitmap) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
-        // Convertimos el Bitmap a ImageBitmap de Compose
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = "Foto capturada",
