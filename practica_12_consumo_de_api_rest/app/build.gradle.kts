@@ -51,4 +51,11 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Retrofit y Gson para hacer las peticiones a la API y convertir el JSON a objetos[cite: 6]
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Coil para cargar las imágenes de los pokémon desde la URL
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    // Navegación entre pantallas en Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 }
