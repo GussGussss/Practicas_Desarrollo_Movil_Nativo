@@ -1,4 +1,4 @@
-package com.example.mini_proyecto_red_social_local.ui
+package com.example.mini_proyecto_red_social_local.iu
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
