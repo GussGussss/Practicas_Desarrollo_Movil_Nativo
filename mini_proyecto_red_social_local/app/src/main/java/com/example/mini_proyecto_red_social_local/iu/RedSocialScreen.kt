@@ -44,23 +44,28 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
     val context = LocalContext.current
     val publicaciones by publicacionViewModel.publicaciones.collectAsState()
 
-    // Estados para el formulario de alta
+    // Estados del formulario
     var titulo by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
     var fotoUri by remember { mutableStateOf<String?>(null) }
     var fechaSeleccionada by remember { mutableStateOf("") }
 
-    // Estado para la publicación seleccionada en el cuadro de diálogo ampliar imagen y detalle
+    // Estado para la publicación seleccionada (ampliar imagen y detalle)
     var publicacionSeleccionada by remember { mutableStateOf<Publicacion?>(null) }
 
-    // Lanzador para seleccionar imagen desde la Galería
+    // Lanzador para Galería: Guarda una copia física permanente en almacenamiento interno
     val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { fotoUri = it.toString() }
+        uri?.let {
+            val uriLocal = guardarUriEnAlmacenamientoLocal(context, it)
+            if (uriLocal != null) {
+                fotoUri = uriLocal.toString()
+            }
+        }
     }
 
-    // Lanzador para capturar imagen con la Cámara
+    // Lanzador para Cámara
     val camaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? ->
@@ -70,7 +75,7 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
         }
     }
 
-    // Lanzador para la gestión de permisos en tiempo de ejecución
+    // Permisos en tiempo de ejecución
     val permisoCamaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { esConcedido ->
@@ -81,7 +86,7 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
         }
     }
 
-    // Selector de fecha nativo mediante DatePickerDialog
+    // Selector de fecha nativo
     val calendario = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
         context,
@@ -109,7 +114,6 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Card con el formulario de alta
             Card(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -136,7 +140,6 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Opciones de Cámara y Galería con validación de permisos
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -173,7 +176,6 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Botón para la selección opcional de fecha
                     OutlinedButton(
                         onClick = { datePickerDialog.show() },
                         modifier = Modifier.fillMaxWidth()
@@ -185,7 +187,6 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                         )
                     }
 
-                    // Vista previa con Coil de la imagen elegida o capturada
                     fotoUri?.let { uri ->
                         Spacer(modifier = Modifier.height(8.dp))
                         AsyncImage(
@@ -204,7 +205,6 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                     Button(
                         onClick = {
                             if (titulo.isNotBlank() && descripcion.isNotBlank() && fotoUri != null) {
-                                // Si el usuario no selecciona fecha  se genera automáticamente la fecha y hora actual
                                 val fechaFinal = if (fechaSeleccionada.isNotBlank()) {
                                     fechaSeleccionada
                                 } else {
@@ -236,7 +236,6 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
             Text("Publicaciones", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Listado de publicaciones
             if (publicaciones.isEmpty()) {
                 Text(
                     "No hay publicaciones aún. ¡Crea una!",
@@ -333,6 +332,7 @@ fun PublicacionItem(publicacion: Publicacion, onClick: () -> Unit) {
     }
 }
 
+// Guarda la miniatura de la cámara en caché
 private fun guardarBitmapEnCache(context: Context, bitmap: Bitmap): Uri {
     val archivo = File(context.cacheDir, "foto_${System.currentTimeMillis()}.jpg")
     val stream = FileOutputStream(archivo)
@@ -340,4 +340,22 @@ private fun guardarBitmapEnCache(context: Context, bitmap: Bitmap): Uri {
     stream.flush()
     stream.close()
     return Uri.fromFile(archivo)
+}
+
+// Copia la imagen de la galería al almacenamiento interno de la app para que la URI persista siempre
+private fun guardarUriEnAlmacenamientoLocal(context: Context, uri: Uri): Uri? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        val archivo = File(context.filesDir, "galeria_${System.currentTimeMillis()}.jpg")
+        val outputStream = FileOutputStream(archivo)
+        inputStream.use { input ->
+            outputStream.use { output ->
+                input.copyTo(output)
+            }
+        }
+        Uri.fromFile(archivo)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
