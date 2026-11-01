@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.mini_proyecto_red_social_local.iu.RedSocialScreen
 import com.example.mini_proyecto_red_social_local.ui.theme.Mini_proyecto_red_social_localTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
+            RedSocialScreen()
         }
     }
 }

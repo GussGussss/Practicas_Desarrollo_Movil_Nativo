@@ -1,15 +1,21 @@
 package com.example.mini_proyecto_red_social_local.iu
 
+import android.Manifest
+import android.app.DatePickerDialog
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
@@ -20,12 +26,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mini_proyecto_red_social_local.data.Publicacion
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -35,18 +44,23 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
     val context = LocalContext.current
     val publicaciones by publicacionViewModel.publicaciones.collectAsState()
 
+    // Estados para el formulario de alta
     var titulo by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
     var fotoUri by remember { mutableStateOf<String?>(null) }
+    var fechaSeleccionada by remember { mutableStateOf("") }
 
-    // Lanzador para Galería (Práctica 11)
+    // Estado para la publicación seleccionada en el cuadro de diálogo ampliar imagen y detalle
+    var publicacionSeleccionada by remember { mutableStateOf<Publicacion?>(null) }
+
+    // Lanzador para seleccionar imagen desde la Galería
     val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { fotoUri = it.toString() }
     }
 
-    // Lanzador para Cámara (Práctica 10)
+    // Lanzador para capturar imagen con la Cámara
     val camaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? ->
@@ -55,6 +69,29 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
             fotoUri = uri.toString()
         }
     }
+
+    // Lanzador para la gestión de permisos en tiempo de ejecución
+    val permisoCamaraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { esConcedido ->
+        if (esConcedido) {
+            camaraLauncher.launch(null)
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Selector de fecha nativo mediante DatePickerDialog
+    val calendario = Calendar.getInstance()
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, anio, mes, dia ->
+            fechaSeleccionada = String.format("%02d/%02d/%d", dia, mes + 1, anio)
+        },
+        calendario.get(Calendar.YEAR),
+        calendario.get(Calendar.MONTH),
+        calendario.get(Calendar.DAY_OF_MONTH)
+    )
 
     Scaffold(
         topBar = {
@@ -72,6 +109,7 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // Card con el formulario de alta
             Card(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -98,12 +136,24 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Opciones de Cámara y Galería con validación de permisos
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Button(
-                            onClick = { camaraLauncher.launch(null) },
+                            onClick = {
+                                val tienePermiso = ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED
+
+                                if (tienePermiso) {
+                                    camaraLauncher.launch(null)
+                                } else {
+                                    permisoCamaraLauncher.launch(Manifest.permission.CAMERA)
+                                }
+                            },
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.CameraAlt, contentDescription = null)
@@ -121,6 +171,21 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Botón para la selección opcional de fecha
+                    OutlinedButton(
+                        onClick = { datePickerDialog.show() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.CalendarToday, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (fechaSeleccionada.isNotBlank()) "Fecha: $fechaSeleccionada" else "Seleccionar Fecha (Opcional)"
+                        )
+                    }
+
+                    // Vista previa con Coil de la imagen elegida o capturada
                     fotoUri?.let { uri ->
                         Spacer(modifier = Modifier.height(8.dp))
                         AsyncImage(
@@ -139,21 +204,24 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                     Button(
                         onClick = {
                             if (titulo.isNotBlank() && descripcion.isNotBlank() && fotoUri != null) {
-                                val fechaActual = SimpleDateFormat(
-                                    "dd/MM/yyyy hh:mm a",
-                                    Locale.getDefault()
-                                ).format(Date())
+                                // Si el usuario no selecciona fecha  se genera automáticamente la fecha y hora actual
+                                val fechaFinal = if (fechaSeleccionada.isNotBlank()) {
+                                    fechaSeleccionada
+                                } else {
+                                    SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).format(Date())
+                                }
 
                                 publicacionViewModel.agregarPublicacion(
                                     titulo = titulo,
                                     descripcion = descripcion,
                                     fotoUri = fotoUri!!,
-                                    fecha = fechaActual
+                                    fecha = fechaFinal
                                 )
 
                                 titulo = ""
                                 descripcion = ""
                                 fotoUri = null
+                                fechaSeleccionada = ""
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -165,11 +233,10 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
             Text("Publicaciones", style = MaterialTheme.typography.titleMedium)
-
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Listado de publicaciones
             if (publicaciones.isEmpty()) {
                 Text(
                     "No hay publicaciones aún. ¡Crea una!",
@@ -182,7 +249,50 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(publicaciones) { pub ->
-                        PublicacionItem(publicacion = pub)
+                        PublicacionItem(
+                            publicacion = pub,
+                            onClick = { publicacionSeleccionada = pub }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    publicacionSeleccionada?.let { pub ->
+        Dialog(onDismissRequest = { publicacionSeleccionada = null }) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    AsyncImage(
+                        model = pub.fotoUri,
+                        contentDescription = pub.titulo,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 350.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = pub.titulo, style = MaterialTheme.typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = pub.descripcion, style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Fecha: ${pub.fecha}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { publicacionSeleccionada = null },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Cerrar")
                     }
                 }
             }
@@ -191,10 +301,12 @@ fun RedSocialScreen(publicacionViewModel: PublicacionViewModel = viewModel()) {
 }
 
 @Composable
-fun PublicacionItem(publicacion: Publicacion) {
+fun PublicacionItem(publicacion: Publicacion, onClick: () -> Unit) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             AsyncImage(
