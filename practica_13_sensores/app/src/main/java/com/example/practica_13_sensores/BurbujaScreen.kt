@@ -4,10 +4,13 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -23,36 +27,75 @@ import kotlin.math.sqrt
 @Composable
 fun BurbujaScreen(sensorManager: SensorManager) {
 
+    // 1. Estados para los 3 ejes cartesiano (X, Y, Z)
+    var ejeX by remember { mutableFloatStateOf(0f) }
+    var ejeY by remember { mutableFloatStateOf(0f) }
+    var ejeZ by remember { mutableFloatStateOf(0f) }
+
+    // Estado para controlar si hubo una sacudida
+    var estaSacudido by remember { mutableStateOf(false) }
+
+    // Animación de cambio de color de fondo al sacudir
+    val colorFondo by animateColorAsState(
+        targetValue = if (estaSacudido) Color(0xFF8B0000) else Color.DarkGray, // Rojo oscuro si sacude, gris si normal
+        animationSpec = tween(durationMillis = 300),
+        label = "ColorAnimado"
+    )
+
+    // Configuración de sensibilidad para la burbuja
+    val sensibilidad = 50f
+    val radioMaximo = 250f
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
 
-    // Factor de sensibilidad
-    val sensibilidad = 50f
+    // Temporizador para restablecer el mensaje de sacudida
+    LaunchedEffect(estaSacudido) {
+        if (estaSacudido) {
+            delay(1500) // Mantiene la alerta visible por 1.5 segundos
+            estaSacudido = false
+        }
+    }
 
-    // Límite: Se ajusta dependiendo del tamaño del círculo exterior (250dp/2 = 125 aprox)
-    val radioMaximo = 250f
-
+    // Listener del sensor acelerómetro
     DisposableEffect(Unit) {
+        var ultimoTiempoSacudida: Long = 0
+
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent?) {
                 event?.let {
-                    // 1. Obtenemos las coordenadas "crudas" del sensor
-                    val rawX = -it.values[0] * sensibilidad
-                    val rawY = it.values[1] * sensibilidad
+                    // Obtener valores brutos de los 3 ejes (X, Y, Z)
+                    val rawX = it.values[0]
+                    val rawY = it.values[1]
+                    val rawZ = it.values[2]
 
-                    // 2. Calculamos la distancia real desde el centro usando Teorema de Pitágoras
-                    val distancia = sqrt((rawX * rawX) + (rawY * rawY))
+                    ejeX = rawX
+                    ejeY = rawY
+                    ejeZ = rawZ
 
-                    // 3. Si la distancia intenta salirse de nuestro radio, la limitamos
+                    // Lógica para mover la burbuja (Ejes X e Y)
+                    val posX = -rawX * sensibilidad
+                    val posY = rawY * sensibilidad
+                    val distancia = sqrt((posX * posX) + (posY * posY))
+
                     if (distancia > radioMaximo) {
-                        // Calculamos la proporción para mantenerla justo en la orilla
                         val proporcion = radioMaximo / distancia
-                        offsetX = rawX * proporcion
-                        offsetY = rawY * proporcion
+                        offsetX = posX * proporcion
+                        offsetY = posY * proporcion
                     } else {
-                        // Si está dentro del círculo, se mueve libremente
-                        offsetX = rawX
-                        offsetY = rawY
+                        offsetX = posX
+                        offsetY = posY
+                    }
+
+                    // 2. Lógica Matemática de Detección de Sacudida (Shake Detection)
+                    val fuerzaAceleracion = sqrt((rawX * rawX) + (rawY * rawY) + (rawZ * rawZ))
+                    val umbralSacudida = 15.0f // Umbral en m/s^2 (La gravedad normal es ~9.81 m/s^2)
+                    val tiempoActual = System.currentTimeMillis()
+
+                    if (fuerzaAceleracion > umbralSacudida) {
+                        if (tiempoActual - ultimoTiempoSacudida > 500) { // Prevenir múltiples activaciones consecutivas
+                            ultimoTiempoSacudida = tiempoActual
+                            estaSacudido = true
+                        }
                     }
                 }
             }
@@ -71,7 +114,7 @@ fun BurbujaScreen(sensorManager: SensorManager) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nivel de Burbuja") },
+                title = { Text("Nivel de Burbuja + Sensores") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -82,9 +125,10 @@ fun BurbujaScreen(sensorManager: SensorManager) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.DarkGray),
+                .background(colorFondo),
             contentAlignment = Alignment.Center
         ) {
+            // Nivel de Burbuja Visual
             Box(
                 modifier = Modifier
                     .size(250.dp)
@@ -102,10 +146,29 @@ fun BurbujaScreen(sensorManager: SensorManager) {
                     modifier = Modifier
                         .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                         .size(40.dp)
-                        .background(Color(0xFF00FF00), CircleShape)
+                        .background(if (estaSacudido) Color.Red else Color(0xFF00FF00), CircleShape)
                 )
             }
 
+            // Mensaje Flotante de Alerta al Sacudir
+            if (estaSacudido) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 24.dp)
+                ) {
+                    Text(
+                        text = "¡Dispositivo Sacudido!",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                    )
+                }
+            }
+
+            // Despliegue dinámico de las 3 coordenadas (X, Y, Z)
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -113,14 +176,19 @@ fun BurbujaScreen(sensorManager: SensorManager) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Eje X: ${"%.2f".format(offsetX / sensibilidad)}",
+                    text = "Eje X: ${"%.2f".format(ejeX)} m/s²",
                     color = Color.White,
-                    fontSize = 20.sp
+                    fontSize = 18.sp
                 )
                 Text(
-                    "Eje Y: ${"%.2f".format(offsetY / sensibilidad)}",
+                    text = "Eje Y: ${"%.2f".format(ejeY)} m/s²",
                     color = Color.White,
-                    fontSize = 20.sp
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "Eje Z: ${"%.2f".format(ejeZ)} m/s²",
+                    color = Color.White,
+                    fontSize = 18.sp
                 )
             }
         }
